@@ -1,0 +1,116 @@
+#include <Joystick.h>
+
+
+int latchPin = 8;
+int dataPin = 9;
+int clockPin = 7;
+
+
+long time = 0;
+long debounce = 300;
+
+byte switchVar1 = 8;
+byte switchVar2 = 16;
+byte switchVar3 = 24;
+
+// parameters for reading Joystick:
+
+Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID,JOYSTICK_TYPE_GAMEPAD,
+24, 0, // Button Count, Hat Switch Count
+false, false, false, // X and Y, but no Z Axis
+false, false, false, // Rx, Ry, or Rz
+false, false, // rudder or throttle
+false, false, false); // accelerator, brake, or steering
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(latchPin, OUTPUT);
+  pinMode(clockPin, OUTPUT); 
+  pinMode(dataPin, INPUT);
+  Joystick.begin();
+
+  
+}
+
+void loop() {
+  
+  digitalWrite(latchPin,1);
+  delayMicroseconds(20);
+  digitalWrite(latchPin,0);
+  switchVar1 = shiftIn(dataPin, clockPin);
+  switchVar2 = shiftIn(dataPin, clockPin);
+  switchVar3 = shiftIn(dataPin, clockPin);
+  Serial.println(switchVar1, BIN);
+  Serial.println(switchVar2, BIN);
+  Serial.println(switchVar3, BIN);
+  delay(50);
+
+  for (int n=0; n<6; n++)
+  {
+    if (switchVar1 & (1 << 7) ){
+    }
+    
+    {if (switchVar1 & (0b1) )          {Joystick.pressButton(0);}  else {Joystick.releaseButton(0);}}    //1
+    {if (switchVar1 & (0b10) )         {Joystick.pressButton(6);}  else {Joystick.releaseButton(6);}}    //7
+    {if (switchVar1 & (0b100) )        {Joystick.pressButton(12);} else {Joystick.releaseButton(12);}}   //13
+    {if (switchVar1 & (0b1000) )       {Joystick.pressButton(18);} else {Joystick.releaseButton(18);}}   //19
+    {if (switchVar1 & (0b10000) )      {Joystick.pressButton(19);} else {Joystick.releaseButton(19);}}   //20
+    {if (switchVar1 & (0b100000) )     {Joystick.pressButton(13);} else {Joystick.releaseButton(13);}}   //14
+    {if (switchVar1 & (0b1000000) )    {Joystick.pressButton(7);}  else {Joystick.releaseButton(7);}}    //8
+    {if (switchVar1 & (0b10000000) )   {Joystick.pressButton(1);}  else {Joystick.releaseButton(1);}}    //2
+  }
+  for (int n=0; n<6; n++)
+  {
+    if (switchVar2 & (1 << 7) ){
+    }
+    {if (switchVar2 & (0b1) )          {Joystick.pressButton(2);}  else {Joystick.releaseButton(2);}}    //3
+    {if (switchVar2 & (0b10) )         {Joystick.pressButton(8);}  else {Joystick.releaseButton(8);}}    //9
+    {if (switchVar2 & (0b100) )        {Joystick.pressButton(14);} else {Joystick.releaseButton(14);}}   //15
+    {if (switchVar2 & (0b1000) )       {Joystick.pressButton(20);} else {Joystick.releaseButton(20);}}   //21
+    {if (switchVar2 & (0b10000) )      {Joystick.pressButton(21);} else {Joystick.releaseButton(21);}}   //22
+    {if (switchVar2 & (0b100000) )     {Joystick.pressButton(15);} else {Joystick.releaseButton(15);}}   //16
+    {if (switchVar2 & (0b1000000) )    {Joystick.pressButton(9);}  else {Joystick.releaseButton(9);}}    //10
+    {if (switchVar2 & (0b10000000) )   {Joystick.pressButton(3);}  else {Joystick.releaseButton(3);}}    //4
+  }
+  for (int n=0; n<6; n++)
+  {
+    if (switchVar3 & (1 << 7) ){
+    }
+    {if (switchVar3 & (0b1) )           {Joystick.pressButton(4);}  else {Joystick.releaseButton(4);}}   //5
+    {if (switchVar3 & (0b10) )          {Joystick.pressButton(10);} else {Joystick.releaseButton(10);}}  //11
+    {if (switchVar3 & (0b100) )         {Joystick.pressButton(16);} else {Joystick.releaseButton(16);}}  //17
+    {if (switchVar3 & (0b1000) )        {Joystick.pressButton(22);} else {Joystick.releaseButton(22);}}  //23
+    {if (switchVar3 & (0b10000) )       {Joystick.pressButton(23);} else {Joystick.releaseButton(23);}}  //24
+    {if (switchVar3 & (0b100000) )      {Joystick.pressButton(17);} else {Joystick.releaseButton(17);}}  //18
+    {if (switchVar3 & (0b1000000) )     {Joystick.pressButton(11);} else {Joystick.releaseButton(11);}}  //12
+    {if (switchVar3 & (0b10000000) )    {Joystick.pressButton(5);}  else {Joystick.releaseButton(5);}}   //6
+  }  
+}
+
+byte shiftIn(int myDataPin, int myClockPin) { 
+  int i;
+  int temp = 0;
+  int pinState;
+  byte myDataIn = 0;
+
+  pinMode(myClockPin, OUTPUT);
+  pinMode(myDataPin, INPUT);
+
+  for (i=7
+  ; i>=0; i--)
+  {
+    digitalWrite(myClockPin, 0);
+    delayMicroseconds(2);
+    temp = digitalRead(myDataPin);
+    if (temp) {
+      pinState = 1;
+      //set the bit to 0 no matter what
+      myDataIn = myDataIn | (1 << i);
+    }
+    else {
+      pinState = 0;
+    }
+    digitalWrite(myClockPin, 1);
+  }
+  return myDataIn;
+}
